@@ -1,0 +1,52 @@
+#Программа ниже представляет собой телефонный справочник, который имеет возможность импорта и экспорта данных в формате .txt.
+#Данные в текстовом файле должны быть представлены в формате: Фамилия, Имя, Отчество, Номер телефона.
+#Функция `phonebook_read` отвечает за чтение данных из файла, `phonebook_write` сохраняет данные в текстовом файле, `find_entry` выполняет поиск записи, а `copy_entry` осуществляет копирование данных из одного файла в другой.
+#В программе исползуются такие операции для работы с файлами, как чтение, запись и добавление строки в файл.
+
+
+def phonebook_read(filename):
+    phonebook = []
+    with open(filename, 'r') as file:
+        for line in file:
+            surname, name, patronymic, phone_number = line.strip().split(',')
+            phonebook.append({
+                'surname': surname,
+                'name': name,
+                'patronymic': patronymic,
+                'phone_number': phone_number,
+            })
+    return phonebook
+
+def phonebook_write(filename, phonebook):
+    with open(filename, 'w') as file:
+        for entry in phonebook:
+            line = '{surname},{name},{patronymic},{phone_number}\\n'.format(**entry)
+            file.write(line)
+
+def find_entry(phonebook, keyword):
+    return [entry for entry in phonebook if keyword in entry.values()]
+
+def copy_entry(source_file, target_file, line_number):
+    with open(source_file, 'r') as sf:
+        lines = sf.readlines()
+
+    line = lines[line_number - 1]  # отнимаем 1, потому что нумерация начинается с 0
+    with open(target_file, 'a') as tf:
+        tf.write(line)
+
+# читаем данные из исходного файла
+phonebook = phonebook_read('phonebook.txt')
+
+# находим запись по ключевому слову
+keyword = input('Введите ключевое слово для поиска: ')
+found_entries = find_entry(phonebook, keyword)
+print(found_entries)
+
+# переносим запись из одного файла в другой
+source_file = input('Введите имя исходного файла: ')
+target_file = input('Введите имя целевого файла: ')
+line_number = int(input('Введите номер строки для переноса: '))
+copy_entry(source_file, target_file, line_number)
+
+# сохраняем изменения в исходный файл
+phonebook_write('phonebook.txt', phonebook)
